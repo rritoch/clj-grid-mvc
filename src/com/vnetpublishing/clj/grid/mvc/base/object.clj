@@ -12,6 +12,7 @@
 (defn ns-init
   [t-ns]
    (when (not (:init (deref (engine/get-ns-state t-ns))))
+         (debug (str "Initializing namespace " (.getName t-ns)))
          (reset! (engine/get-ns-state t-ns) 
                  {:properties (atom {})})
          (swap! (engine/get-ns-state t-ns) assoc :init true)
@@ -20,7 +21,13 @@
                       (fn? (var-get m))
                       (var-get m))]
               (if f
-                  (f)))
+                  (try (f)
+                       (catch Throwable 
+                              t
+                              (throw (Exception. (str "Error in " 
+                                                      (.getName t-ns) 
+                                                      " constructor.")
+                                                t))))))
          true))
 
 (def ns-set engine/ns-set)

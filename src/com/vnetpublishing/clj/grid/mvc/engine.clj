@@ -1,5 +1,7 @@
 (ns com.vnetpublishing.clj.grid.mvc.engine
-  (:require [com.vnetpublishing.clj.grid.lib.grid.kernel :refer :all])
+  (:require [com.vnetpublishing.clj.grid.lib.grid.kernel :refer :all]
+            [clojure.java.io :as io]
+            [clojure.string :as string])
   (:import [java.util Date]))
 
 (defn get-ns-state
@@ -60,15 +62,15 @@
 
 (defn ns-load
   [ns-sym]
-     (load (name ns-sym))
+     (when-let [r (io/resource (str (string/replace (name ns-sym) "." "/")
+                                    ".clj"))]
+               (load-resource (.toURI r)))
      (when-let [t-ns (find-ns ns-sym)]
        (if (not (ns-load-time t-ns))
            (alter-meta! t-ns
                         assoc
                         :ns-load-timestamp
                         (.getTime (Date.))))))
-
-
 
 (defn ns-get
   ([t-ns name default-value]
