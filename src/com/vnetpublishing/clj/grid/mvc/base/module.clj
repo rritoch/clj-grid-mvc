@@ -22,11 +22,13 @@
 
 (defn start
   [t-ns context]
-    (call-other t-ns 'start context))
+    (if (extern-callable? t-ns 'start)
+        (call-other t-ns 'start context)))
 
 (defn stop
   [t-ns context]
-    (call-other t-ns 'start context))
+    (if (extern-callable? t-ns 'stop)
+        (call-other t-ns 'stop context)))
 
 (defn ^:private need-load?
   [ns-sym]

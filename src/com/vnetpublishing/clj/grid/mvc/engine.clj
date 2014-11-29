@@ -38,22 +38,22 @@
 
 (defmacro assign
    [target values]
-   (loop [v values f (conj '() (symbol "t")) t (if (instance? java.util.List)
-                                                   (eval `(do ~target))
-                                                   target)]
-     (if (empty? v)
-         (conj (conj f [(symbol "t") target]) (symbol "let"))
-         (recur (butlast (butlast v))
-                (conj f 
-                      (conj (conj (conj (conj nil 
-                                              (last v))  
-                                              (last (butlast v))) 
-                                         
-                                  (symbol "t")) 
-                            (symbol "com.vnetpublishing.clj.grid.mvc.engine/ns-set")))
-                 t))))
-
-
+     (let [t-sym (gensym "t")]
+          (loop [v values 
+                 f (conj '() t-sym) 
+                 t (if (instance? java.util.List target)
+                       (eval `(do ~target))
+                       target)]
+                (if (empty? v)
+                    (conj (conj f [t-sym target]) (symbol "let"))
+                    (recur (butlast (butlast v))
+                           (conj f 
+                                 (conj (conj (conj (conj nil 
+                                                         (last v))  
+                                                   (last (butlast v))) 
+                                             t-sym)
+                                       `ns-set))
+                           t)))))
 
 (defn ns-load-time
   [t-ns]
