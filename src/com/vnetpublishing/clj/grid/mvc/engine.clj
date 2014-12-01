@@ -62,15 +62,23 @@
 
 (defn ns-load
   [ns-sym]
-     (when-let [r (io/resource (str (string/replace (name ns-sym) "." "/")
-                                    ".clj"))]
-               (load-resource (.toURI r)))
-     (when-let [t-ns (find-ns ns-sym)]
+     (debug (str "Loading namespace: " (name ns-sym)))
+     (if-let [r (io/resource (str (string/replace (name ns-sym) "." "/")
+                                  ".clj"))]
+               (load-resource (.toURI r))
+               (debug (str "Resource " 
+                           (str (string/replace (name ns-sym) "." "/")
+                                  ".clj")
+                           " not found!")))
+     (if-let [t-ns (find-ns ns-sym)]
        (if (not (ns-load-time t-ns))
            (alter-meta! t-ns
                         assoc
                         :ns-load-timestamp
-                        (.getTime (Date.))))))
+                        (.getTime (Date.))))
+       (debug (str "Namespace "
+                   (name ns-sym)
+                   " not found"))))
 
 (defn ns-get
   ([t-ns name default-value]
