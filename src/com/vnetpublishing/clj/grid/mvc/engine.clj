@@ -62,7 +62,10 @@
 
 (defn ns-load
   [ns-sym]
-     (debug (str "Loading namespace: " (name ns-sym)))
+     (debug (str "Loading namespace: " 
+                 (name ns-sym)
+                 " with ClassLoader "
+                 (pr-str (.getContextClassLoader (Thread/currentThread)))))
      (if-let [r (io/resource (str (string/replace (name ns-sym) "." "/")
                                   ".clj"))]
                (load-resource (.toURI r))
