@@ -31,6 +31,28 @@
   [controller-ns]
     (:parent-module (deref (get-ns-state controller-ns))))
 
+
+(defn do-action
+  [t-ns sym & args]
+    (let [m (get (ns-publics t-ns) (symbol sym))]
+         (if-let [f (and (var? m)
+                            (:action (meta m))
+                            (fn? (var-get m))
+                            (var-get m))]
+                   (apply f args)
+                   (throw (Exception. (str "Action "
+                                           (.getName t-ns)
+                                           "/"
+                                           sym
+                                           " not found."))))))
+
+(defn get-request-parameter
+  ([name]
+    (.getParameter kernel/*servlet-request* "action"))
+  ([name default-value]
+    (or (.getParameter kernel/*servlet-request* "action")
+        default-value)))
+
 (defn dispatch?
   ([controller-ns lock]
     (let [ret (if (-> (get-ns-state controller-ns) 
